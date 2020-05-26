@@ -196,7 +196,7 @@ flye --nano-raw $nano_cp_long --genome-size $genome_size \
 --out-dir flye-out --threads $threads
 #using uncorrected reads as read correction can lead to errors
 #other flye options had little effect here - keep haplotpyes, meta, trestle
-#cp flye-out/assembly.fasta $assembly_flye
+cp flye-out/assembly.fasta $assembly_flye
 
 #...........................................................................
 msg_banner "now polishing flye assembly with long reads"
