@@ -19,7 +19,7 @@
 * An illumina adapters file, for trimming
 * A baits.fasta file - sequences from a similar chloroplast genome to use to extract matching *chloroplast* reads from all the reads. I used three gene sequences from a similar species; the genes are likely to be fairly evenly spaced to allow matching reads to span the whole genome. 
 * The script activates a conda environment with the tools needed (this is bio.yml). 
-* A copy of this yml is in this repo. 
+* A copy of this yml is in this repo. (It is probably bigger than it needs to be - has tools that are not used in this script). 
 
 ## What the script does:
 
