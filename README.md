@@ -12,19 +12,34 @@
 Steps:
 
 1/ extract chloroplast nanopore reads from all long reads
+
 2/ keep a subset of these reads (longest, to x250 coverage) using filtlong
+
 3/ assemble these with flye
+
 4/ polish that assembly with the long reads themselves
+
 5/ trim and filter illumina reads with fastp
+
 6/ extract illumina chloroplast reads from all illumina reads
+
 7/ downsample to X300 coverage with rasusa
+
 8/ polish the flye assembly with the short reads, with pilon
+
 9/ do an additional assembly with Unicycler, which uses both long and short reads
-10/ do an additional assembly with miniasm, using long reads. 
+
+10/ do an additional assembly with miniasm, using long reads
+
 11/ polish that assembly with minipolish and the long reads
+
 12/ polish again with the short reads
-13/ compare the assemblies with mummer - dnadiff, to get delta files (then view in assemblytics.com)
+
+13/ compare the assemblies with mummer - dnadiff, to get delta files (then view in http://www.assemblytics.com/)
+
 14/ calculate stats for all read sets and assemblies with seqkit stats. 
+
+15/ upload assembly fasta files to https://chlorobox.mpimp-golm.mpg.de/geseq.html if you want to annotate the genomes. 
 
 
 
