@@ -10,6 +10,7 @@
 * The script activates a conda environment with the tools needed (this is bio.yml). A copy of this in in this repo. (It also makes a copy when you run it). 
 
 Steps:
+
 1/ extract chloroplast nanopore reads from all long reads
 2/ keep a subset of these reads (longest, to x250 coverage) using filtlong
 3/ assemble these with flye
