@@ -70,7 +70,7 @@ mummer
 seqkit
 ```
 
-A conda env yml file is in this repo, but this is platform-dependent (linux). 
+A conda env yml file is in this repo, with a record of the tools and versions used in the analysis, but this environment is platform-dependent (linux). 
 
 
 
