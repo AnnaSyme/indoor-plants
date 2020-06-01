@@ -5,7 +5,6 @@
 #............................................................................
 # How to use
 
-# deactivate any active conda environment
 # bash plastid-assembly.sh -a adapters -b baits R1 R2 nano
 
 #............................................................................
