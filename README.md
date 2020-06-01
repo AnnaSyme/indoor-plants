@@ -6,8 +6,10 @@
 
 ## How to use
 
-```bash plastid-assembly.sh```
+Example:
 
+* Copy `plastid-assembly.sh` and `bio.yml` into the directory where you will run the analysis
+* Run: `bash plastid-assembly.sh -a adapters.fasta -b baits.fasta R1.fq R2.fq nano.fq`
 
 ## Basic process
 
