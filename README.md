@@ -6,8 +6,11 @@
 
 ## How to use
 
-```bash plastid-assembly.sh```
+Example:
 
+* Copy `plastid-assembly.sh` into the directory where you will run the analysis
+* Install tools required. 
+* Run: `bash plastid-assembly.sh -a adapters.fasta -b baits.fasta R1.fq R2.fq nano.fq`
 
 ## Basic process
 
@@ -23,8 +26,8 @@
 * Short reads, e.g. Illumina R1 and R2
 * An illumina adapters file, for trimming
 * A baits.fasta file - sequences from a similar chloroplast genome to use to extract matching *chloroplast* reads from all the reads. I used three gene sequences from a similar species; the genes are likely to be fairly evenly spaced to allow matching reads to span the whole genome. 
-* The script activates a conda environment with the tools needed (this is bio.yml). 
-* A copy of this yml is in this repo. (It is probably bigger than it needs to be - has tools that are not used in this script). 
+* The script activates a conda environment with the tools needed (this is plastid-env.yml). 
+* A copy of this yml is in this repo. 
 
 ## What the script does:
 
@@ -47,6 +50,30 @@
 
 * Polished chloroplast genome assemblies using long and short reads, from Flye, Unicycler and Miniasm/Minipolish. 
 * Upload the assembly fasta files to https://chlorobox.mpimp-golm.mpg.de/geseq.html if you want to annotate the genomes. 
+
+## Tools
+
+Installed with conda. 
+
+```
+minimap2
+samtools
+filtlong
+flye
+racon
+fastp
+rasusa
+bwa
+pilon
+unicycler
+miniasm
+minipolish
+mummer
+seqkit
+```
+
+
+
 
 
 
