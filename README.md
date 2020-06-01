@@ -8,8 +8,7 @@
 
 Example:
 
-* Copy `plastid-assembly.sh` into the directory where you will run the analysis
-* Install tools required. 
+* Copy `plastid-assembly.sh` and `plastid-env.yml` into the directory where you will run the analysis
 * Run: `bash plastid-assembly.sh -a adapters.fasta -b baits.fasta R1.fq R2.fq nano.fq`
 
 ## Basic process
