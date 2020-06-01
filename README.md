@@ -8,7 +8,8 @@
 
 Example:
 
-* Copy `plastid-assembly.sh` and `plastid-env.yml` into the directory where you will run the analysis
+* Copy `plastid-assembly.sh` into the directory where you will run the analysis
+* Make sure you have the tools installed (listed below). 
 * Run: `bash plastid-assembly.sh -a adapters.fasta -b baits.fasta R1.fq R2.fq nano.fq`
 
 ## Basic process
@@ -25,8 +26,6 @@ Example:
 * Short reads, e.g. Illumina R1 and R2
 * An illumina adapters file, for trimming
 * A baits.fasta file - sequences from a similar chloroplast genome to use to extract matching *chloroplast* reads from all the reads. I used three gene sequences from a similar species; the genes are likely to be fairly evenly spaced to allow matching reads to span the whole genome. 
-* The script activates a conda environment with the tools needed (this is plastid-env.yml). 
-* A copy of this yml is in this repo. 
 
 ## What the script does:
 
@@ -70,6 +69,8 @@ minipolish
 mummer
 seqkit
 ```
+
+A conda env yml file is in this repo, but this is platform-dependent (linux). 
 
 
 
