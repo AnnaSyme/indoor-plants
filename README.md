@@ -4,6 +4,11 @@
 
 * A bash script to assemble a chloroplast genome from long and short sequencing reads. 
 
+## How to use
+
+```bash plastid-assembly.sh```
+
+
 ## Basic process
 
 * Get chloroplast-only reads out of all the reads
