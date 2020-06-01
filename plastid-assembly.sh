@@ -134,14 +134,13 @@ msg "   Genome size:         $genome_size"
 msg "   Threads:             $threads"
 
 #...........................................................................
-msg_banner "now activating conda env with tools needed"
 
-source activate bio
-#this activates the conda env called bio
-#note - use source not conda
+#make sure you have the tools installed
+#if using conda env, activate first before running script
 
-conda env export --name bio > conda_env_bio.yml
-#saves this conda env
+conda env export --name plastid-env > plastid-env.yml
+#saves conda env with tools and versions used
+
 
 #...........................................................................
 #these read files will be created during run
