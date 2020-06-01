@@ -55,6 +55,7 @@ Example:
 
 Installed with conda. 
 
+```
 minimap2
 samtools
 filtlong
@@ -69,7 +70,7 @@ miniasm
 minipolish
 mummer
 seqkit
-
+```
 
 
 
