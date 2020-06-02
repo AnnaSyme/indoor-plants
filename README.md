@@ -9,7 +9,7 @@
 Example:
 
 * Copy `plastid-assembly.sh` into the directory where you will run the analysis
-* Make sure you have the tools installed (listed below). 
+* Activate your conda environment with the tools installed.  
 * Run: `bash plastid-assembly.sh -a adapters.fasta -b baits.fasta R1.fq R2.fq nano.fq`
 
 ## Basic process
@@ -42,7 +42,7 @@ Example:
 * polish that assembly with minipolish and the long reads
 * polish again with the short reads
 * compare the assemblies with mummer - dnadiff, to get delta files (then view in http://www.assemblytics.com/)
-* calculate stats for all read sets and assemblies with seqkit stats. 
+* calculate stats for all read sets and assemblies with seqkit stats 
 
 ## Outputs
 
@@ -70,7 +70,7 @@ mummer
 seqkit
 ```
 
-A conda env yml file is in this repo, with a record of the tools and versions used in the analysis, but this environment is platform-dependent (linux). 
+A conda env yml file is included this repo, with a record of the tools and versions used in the analysis, but this environment is platform-dependent (linux). 
 
 
 
