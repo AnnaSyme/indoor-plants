@@ -5,6 +5,7 @@
 #............................................................................
 # How to use
 
+# activate your conda environment with the tools needed
 # bash plastid-assembly.sh -a adapters -b baits R1 R2 nano
 
 #............................................................................
@@ -134,12 +135,8 @@ msg "   Threads:             $threads"
 
 #...........................................................................
 
-#make sure you have the tools installed
-#if using conda env, activate first before running script
-
-conda env export --name plastid-env > plastid-env.yml
-#saves conda env with tools and versions used
-
+conda env export --name plastidenv > plastidenv.yml
+#saves conda env with tools and versions
 
 #...........................................................................
 #these read files will be created during run
