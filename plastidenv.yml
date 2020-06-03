@@ -1,7 +1,0 @@
-name: plastidenv
-channels:
-  - conda-forge
-  - bioconda
-  - defaults
-prefix: /home/anna/miniconda3/envs/plastidenv
-
