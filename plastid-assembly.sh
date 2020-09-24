@@ -148,20 +148,31 @@ R1_cp_subset=R1_cp_subset.fq.gz
 R2_cp_subset=R2_cp_subset.fq.gz
 nano_cp=nano_cp.fq.gz
 nano_cp_long=nano_cp_long.fq.gz
+nano_cp2=nano_cp2.fq.gz
+nano_cp_long2=nano_cp_long2.fq.gz
 
 #...........................................................................
 #these assemblies will be created during run
 assembly_flye=assembly_flye.fasta
 assembly_flye_racon1=assembly_flye_racon1.fasta
 assembly_flye_racon2=assembly_flye_racon2.fasta
-assembly_flye_racon_pilon1=assembly_flye_racon_pilon1.fasta
+
+assembly_flye2=assembly_flye2.fasta
+assembly_flye2_racon1=assembly_flye2_racon1.fasta
+assembly_flye2_racon2=assembly_flye2_racon2.fasta
+
+assembly_flye2_racon_pilon1=assembly_flye2_racon_pilon1.fasta
+
+assembly_raven=assembly_raven.fasta
+assembly_raven_pilon=assembly_raven_pilon.fasta
+
 assembly_unicycler=assembly_unicycler.fasta
 assembly_miniasm=assembly_miniasm.fasta
 assembly_miniasm_minipolished=assembly_miniasm_minipolished.fasta
 assembly_miniasm_minipolished_pilon1=assembly_miniasm_minipolished_pilon1.fasta
 
 #...........................................................................
-msg_banner "now extracting chloroplast nanopore reads from all reads"
+msg_banner "now extracting chloroplast nanopore reads from all reads - round 1"
 
 minimap2 -a -x map-ont -t $threads $baits $nano_raw | 
 samtools fastq -0 $nano_cp -n -F 4 -
@@ -172,7 +183,7 @@ samtools fastq -0 $nano_cp -n -F 4 -
 #the flag -F 4 means exclude unmapped reads (i.e., non cp reads)
 
 #...........................................................................
-msg_banner "now keeping only the longest nanopore cp reads"
+msg_banner "now keeping only the longest nanopore cp reads - round 1"
 
 filtlong --length_weight 1 --mean_q_weight 0 --window_q_weight 0 \
 --target_bases 40000000 $nano_cp | gzip > $nano_cp_long
@@ -185,7 +196,7 @@ filtlong --length_weight 1 --mean_q_weight 0 --window_q_weight 0 \
 ##| gzip > reads_nano_cp_filtered.fq.gz
 
 #...........................................................................
-msg_banner "now assembling nanopore cp reads"
+msg_banner "now assembling nanopore cp reads - round 1"
 
 flye --nano-raw $nano_cp_long --genome-size $genome_size \
 --out-dir flye-out --threads $threads
@@ -194,7 +205,7 @@ flye --nano-raw $nano_cp_long --genome-size $genome_size \
 cp flye-out/assembly.fasta $assembly_flye
 
 #...........................................................................
-msg_banner "now polishing flye assembly with long reads"
+msg_banner "now polishing flye assembly with long reads - round 1"
 
 #round 1. make overlaps file, then run racon
 minimap2 -x map-ont -t $threads $assembly_flye $nano_cp_long \
@@ -211,6 +222,44 @@ $assembly_flye_racon1 > $assembly_flye_racon2
 #option to add in medaka polishing here
 
 #...........................................................................
+msg_banner "now extracting chloroplast nanopore reads from all reads - round 2"
+
+#baits file is now the first polished assembly
+#need to increase minimum match value
+#otherwise too many reads are extracted and they don't assemble
+
+minimap2 -m 5000 -a -x map-ont -t $threads $assembly_flye_racon2 $nano_raw | 
+samtools fastq -0 $nano_cp2 -n -F 4 -
+
+#...........................................................................
+msg_banner "now keeping only the longest nanopore cp reads - round 2"
+
+filtlong --length_weight 1 --mean_q_weight 0 --window_q_weight 0 \
+--target_bases 40000000 $nano_cp2 | gzip > $nano_cp_long2
+
+#...........................................................................
+msg_banner "now assembling nanopore cp reads - round 2"
+
+flye --nano-raw $nano_cp_long2 --genome-size $genome_size \
+--out-dir flye-out2 --threads $threads
+cp flye-out2/assembly.fasta $assembly_flye2
+
+#...........................................................................
+msg_banner "now polishing flye assembly with long reads - round 2"
+
+#round 1. make overlaps file, then run racon
+minimap2 -x map-ont -t $threads $assembly_flye2 $nano_cp_long2 \
+| gzip > overlaps1.paf.gz
+racon --threads $threads $nano_cp_long2 overlaps1.paf.gz \
+$assembly_flye2 > $assembly_flye2_racon1
+
+#round 2
+minimap2 -x map-ont -t $threads $assembly_flye2_racon1 $nano_cp_long2 \
+| gzip > overlaps2.paf.gz
+racon --threads $threads $nano_cp_long2 overlaps2.paf.gz \
+$assembly_flye2_racon1 > $assembly_flye2_racon2
+
+#...........................................................................
 msg_banner "now trimming and filtering raw illumina reads"
 
 fastp --in1 $R1_raw --out1 $R1_fastp --in2 $R2_raw --out2 $R2_fastp --verbose \
@@ -225,7 +274,7 @@ fastp --in1 $R1_raw --out1 $R1_fastp --in2 $R2_raw --out2 $R2_fastp --verbose \
 #...........................................................................
 msg_banner "now extracting illumina chloroplast reads from all reads"
 
-minimap2 -a -x sr $assembly_flye_racon2 $R1_fastp $R2_fastp \
+minimap2 -a -x sr $assembly_flye2_racon2 $R1_fastp $R2_fastp \
 | samtools fastq -1 $R1_cp -2 $R2_cp -F 0x4 -f 0x2 -
 #extract cp reads only by mapping to long-read assembly
 #chose assembly made with longest nanopore reads
@@ -244,13 +293,13 @@ rasusa -i $R1_cp -i $R2_cp --coverage 300 \
 msg_banner "now polishing flye assembly with illumina"
 
 #round 1pilon polish
-bwa index $assembly_flye_racon2
-bwa mem -t $threads $assembly_flye_racon2 $R1_cp_subset $R2_cp_subset \
+bwa index $assembly_flye2_racon2
+bwa mem -t $threads $assembly_flye2_racon2 $R1_cp_subset $R2_cp_subset \
 | samtools sort > flye_aln1.bam
 samtools index flye_aln1.bam
-samtools faidx $assembly_flye_racon2
-pilon --genome $assembly_flye_racon2 --frags flye_aln1.bam \
---output assembly_flye_racon_pilon1 \
+samtools faidx $assembly_flye2_racon2
+pilon --genome $assembly_flye2_racon2 --frags flye_aln1.bam \
+--output assembly_flye2_racon_pilon1 \
 --fix bases --mindepth 0.5 --changes --threads $threads --verbose
 #fix bases, not contig breaks in case that makes incorrect breaks
 
@@ -266,22 +315,46 @@ pilon --genome $assembly_flye_racon2 --frags flye_aln1.bam \
 #--fix bases --mindepth 0.5 --changes --threads $threads --verbose
 
 #...........................................................................
+msg_banner "now running raven assembler"
+
+#note: this uses the same long and short reads as flye+racon+pilon
+#long and short reads are not re-extracted. 
+#two rounds of racon polishing are included by default
+
+raven --graphical-fragment-assembly raven.gfa -t $threads $nano_cp_long2 > $assembly_raven
+
+#...........................................................................
+msg_banner "now polishing raven assembler with pilon"
+
+#round 1pilon polish
+bwa index $assembly_raven
+bwa mem -t $threads $assembly_raven $R1_cp_subset $R2_cp_subset \
+| samtools sort > raven_aln1.bam
+samtools index raven_aln1.bam
+samtools faidx $assembly_raven
+pilon --genome $assembly_raven --frags raven_aln1.bam \
+--output assembly_raven_pilon \
+--fix bases --mindepth 0.5 --changes --threads $threads --verbose
+
+#...........................................................................
 msg_banner "now running unicycler assembler"
 
-unicycler -1 $R1_cp_subset -2 $R2_cp_subset -l $nano_cp_long -o unicycler \
+unicycler -1 $R1_cp_subset -2 $R2_cp_subset -l $nano_cp_long2 -o unicycler \
 --threads $threads --no_rotate --keep 2
 #using fastp filtered illumina reads and longest nano cp reads
 #--keep 2 will keep final files but also SAM
 #--no_rotate means don't rotate replicons to certain start pos
 cp unicycler/assembly.fasta $assembly_unicycler
 
+#note: this uses the same reads as the flye but not raven assembly
+
 #...........................................................................
 msg_banner "now running miniasm assembler"
 
 #map reads to themselves - miniasm needs this as input
-minimap2 -x ava-ont $nano_cp_long $nano_cp_long | gzip -1 > reads_overlaps.paf.gz
+minimap2 -x ava-ont $nano_cp_long2 $nano_cp_long2 | gzip -1 > reads_overlaps.paf.gz
 #assemble with miniasm - needs reads and overlaps (the paf file)
-miniasm -f $nano_cp_long reads_overlaps.paf.gz > miniasm.gfa
+miniasm -f $nano_cp_long2 reads_overlaps.paf.gz > miniasm.gfa
 #convert gfa to fasta file of unitigs
 awk '/^S/{print ">"$2"\n"$3}' miniasm.gfa > $assembly_miniasm
 
@@ -289,7 +362,7 @@ awk '/^S/{print ">"$2"\n"$3}' miniasm.gfa > $assembly_miniasm
 msg_banner "now polishing miniasm assembly with long reads"
 
 #minipolish, uses racon and attempts to circularise
-minipolish -t $threads $nano_cp_long miniasm.gfa > minipolished.gfa
+minipolish -t $threads $nano_cp_long2 miniasm.gfa > minipolished.gfa
 awk '/^S/{print ">"$2"\n"$3}' minipolished.gfa > $assembly_miniasm_minipolished
 
 #alternative: use racon polish only
@@ -330,26 +403,22 @@ pilon --genome $assembly_miniasm_minipolished --frags mini_pilon_aln1.bam \
 #--fix bases --mindepth 0.5 --changes --threads $threads --verbose
 
 #...........................................................................
-msg_banner "now comparing assemblies with dnadiff"
+msg_banner "now mapping long reads to final flye assembly"
 
-#compare assemblies with mummer dnadiff
-#$assembly_unicycler
-#$assembly_flye_racon_pilon1
-#$assembly_miniasm_minipolished_pilon1
-#also include the uncorrected, plain miniasm unitigs
-#$assembly_miniasm
+minimap2 -ax map-ont $assembly_flye2_racon_pilon1 $nano_cp_long2 \
+| samtools sort -o longmapped.bam
 
-dnadiff -p miniasm-unicycler $assembly_miniasm $assembly_unicycler
-dnadiff -p miniasm-flye $assembly_miniasm $assembly_flye_racon_pilon1
-dnadiff -p miniasm-miniasm_corrected \
-$assembly_miniasm $assembly_miniasm_minipolished_pilon1
-#see file.report for info
-#then view delta file in assemblytics.com
+#...........................................................................
+msg_banner "now mapping short reads to final flye assembly"
+
+bwa index $assembly_flye2_racon_pilon1
+bwa mem -t $threads $assembly_flye2_racon_pilon1 $R1_cp_subset $R2_cp_subset \
+| samtools sort -o shortmapped.bam
 
 #...........................................................................
 msg_banner "now calculating stats for reads and assemblies"
 
-seqkit stats $nano_raw $nano_cp $nano_cp_long \
+seqkit stats $nano_raw $nano_cp $nano_cp_long $nano_cp2 $nano_cp_long2 \
 -Ta > nano_read_stats.tsv
 
 seqkit stats $R1_raw $R2_raw $R1_fastp $R2_fastp $R1_cp $R2_cp \
@@ -357,8 +426,10 @@ $R1_cp_subset $R2_cp_subset \
 -Ta > illumina_read_stats.tsv
 
 seqkit stats \
-$assembly_flye \
-$assembly_flye_racon1 $assembly_flye_racon2 $assembly_flye_racon_pilon1 \
+$assembly_flye $assembly_flye_racon1 $assembly_flye_racon2 \
+$assembly_flye2 $assembly_flye2_racon1 $assembly_flye2_racon2 \
+$assembly_flye2_racon_pilon1 \
+$assembly_raven $assembly_raven_pilon \
 $assembly_unicycler \
 $assembly_miniasm \
 $assembly_miniasm_minipolished $assembly_miniasm_minipolished_pilon1 \
